@@ -23,11 +23,7 @@ const listas = {
 };
 
 
-/**
- * Formata número para moeda brasileira
- * @param {number} valor - Valor a ser formatado
- * @returns {string} Valor formatado em R$
- */
+
 function formatarMoeda(valor) {
   return new Intl.NumberFormat('pt-BR', {
     style: 'currency',
@@ -35,42 +31,26 @@ function formatarMoeda(valor) {
   }).format(valor);
 }
 
-/**
- * Formata data para padrão brasileiro
- * @param {string} dataStr - Data em formato ISO
- * @returns {string} Data formatada em DD/MM/YYYY
- */
+
 function formatarData(dataStr) {
   if (!dataStr) return '--/--/----';
   const [ano, mes, dia] = dataStr.split('-');
   return `${dia}/${mes}/${ano}`;
 }
 
-/**
- * Escapa HTML para prevenir XSS
- * @param {string} text - Texto a ser escapado
- * @returns {string} Texto escapado
- */
+
 function escapeHTML(text) {
   const div = document.createElement('div');
   div.textContent = text;
   return div.innerHTML;
 }
 
-/**
- * Calcula total de uma lista
- * @param {Array} itens - Array de objetos com propriedade valor
- * @returns {number} Soma total dos valores
- */
+
 function calcularTotal(itens) {
   return (itens || []).reduce((total, item) => total + (Number(item.valor) || 0), 0);
 }
 
-/**
- * Formata lista de itens para texto
- * @param {Array} itens - Array de itens
- * @returns {string} Lista formatada
- */
+
 function formatarListaItens(itens) {
   if (!itens || itens.length === 0) return '(Nenhum item)\n\n';
   return itens.map((item, index) => 
@@ -91,11 +71,11 @@ function adicionarItem(tipo) {
 }
 
 function adicionarRenovacao() {
-  alert("A entrada de dados detalhada para Renovações deve ser feita na página 'Entrada de Dados Detalhada'.");
+  adicionarItem('renovacao');
 }
 
 function adicionarNovo() {
-  alert("A entrada de dados detalhada para Novos Clientes deve ser feita na página 'Entrada de Dados Detalhada'.");
+  adicionarItem('novo');
 }
 
 function adicionarEntrada() {
@@ -106,13 +86,7 @@ function adicionarSaida() {
   adicionarItem('saida');
 }
 
-/**
- * Atualiza item existente
- * @param {string} tipo - Tipo da lista
- * @param {number} i - Índice do item
- * @param {string} campo - Campo a ser atualizado (nome ou valor)
- * @param {*} valor - Novo valor
- */
+
 function atualizarItem(tipo, i, campo, valor) {
   if (!listas[tipo] || !listas[tipo].data[i]) return;
   
@@ -126,11 +100,7 @@ function atualizarItem(tipo, i, campo, valor) {
   atualizarResumo();
 }
 
-/**
- * Remove item de uma lista
- * @param {string} tipo - Tipo da lista
- * @param {number} i - Índice do item
- */
+
 function removerItem(tipo, i) {
   if (!listas[tipo]) return;
   
@@ -142,11 +112,6 @@ function removerItem(tipo, i) {
 }
 
 
-/**
- * Atualiza tabela visual com dados da lista
- * @param {string} tipo - Tipo da lista
- * @param {boolean} focarNoUltimo - Se deve focar no último item adicionado
- */
 function atualizarTabela(tipo, focarNoUltimo = false) {
   const config = listas[tipo];
   if (!config) return;
@@ -289,15 +254,7 @@ function atualizarResumo() {
 }
 
 
-/**
- * Atualiza o gráfico visual com os valores
- * @param {number} inicial 
- * @param {number} renovacoes 
- * @param {number} novos 
- * @param {number} entradas 
- * @param {number} saidas
- * @param {number} final
- */
+
 function atualizarGrafico(inicial, renovacoes, novos, entradas, saidas, final) {
   document.getElementById('grafSaldoInicial').textContent = formatarMoeda(inicial);
   document.getElementById('grafRenovacoes').textContent = formatarMoeda(renovacoes);
@@ -392,10 +349,7 @@ function gerarConciliacao() {
 }
 
 
-/**
- * Toggle área de colagem
- * @param {string} tipo - Tipo da lista
- */
+
 function togglePasteArea(tipo) {
   const area = document.getElementById(`pasteArea-${tipo}`);
   if (!area) return;
@@ -409,11 +363,7 @@ function togglePasteArea(tipo) {
   }
 }
 
-/**
- * Processa colagem de dados do Excel
- * @param {Event} event - Evento de paste
- * @param {string} tipo - Tipo da lista
- */
+
 function handlePaste(event, tipo) {
   event.preventDefault();
   
@@ -521,10 +471,7 @@ function exportarExcel() {
 }
 
 
-/**
- * Obtém dados atuais do sistema
- * @returns {Object} Objeto com todos os dados
- */
+
 function obterDadosAtuais() {
   return {
     estadoNome: document.getElementById('estadoNome').value,
@@ -539,10 +486,7 @@ function obterDadosAtuais() {
   };
 }
 
-/**
- * Gera link compartilhável
- * @param {Event} event - Evento do botão
- */
+
 function gerarLink(event) {
   const data = obterDadosAtuais();
   const url = new URL(window.location.href.split('?')[0]);
@@ -562,10 +506,7 @@ function gerarLink(event) {
   document.getElementById('status').textContent = 'Link gerado com sucesso!';
 }
 
-/**
- * Copia link para área de transferência
- * @param {Event} event - Evento do botão
- */
+
 function copiarLink(event) {
   const link = document.getElementById('linkGerado').textContent;
   const botao = event.target;
@@ -582,10 +523,7 @@ function copiarLink(event) {
   });
 }
 
-/**
- * Salva dados no localStorage
- * @param {Event} event - Evento do botão
- */
+
 function salvarLocal(event) {
   const data = obterDadosAtuais();
   localStorage.setItem('conciliacao_espartano2', JSON.stringify(data));
@@ -700,3 +638,50 @@ window.onload = () => {
   console.log('✓ Sistema ESPARTANO 2 inicializado com sucesso!');
 };
 
+
+
+function imprimirConciliacao() {
+  
+  atualizarResumo();
+
+  
+  const resumoEmpty = document.getElementById('resumoEmpty');
+  if (resumoEmpty) {
+    resumoEmpty.style.display = 'none';
+  }
+
+  
+  const sidePanel = document.querySelector('.side');
+  if (sidePanel) {
+    sidePanel.style.display = 'none';
+  }
+
+  
+  const printButton = document.querySelector('button[onclick="imprimirConciliacao()"]');
+  if (printButton) {
+    printButton.style.display = 'none';
+  }
+
+ 
+  window.print();
+
+  
+  setTimeout(() => {
+    if (sidePanel) {
+      sidePanel.style.display = 'flex'; // Ou o display original
+    }
+    if (printButton) {
+      printButton.style.display = 'inline-flex'; // Ou o display original
+    }
+    
+    if (resumoEmpty && document.getElementById('resumo').style.display === 'none') {
+      resumoEmpty.style.display = 'block';
+    }
+  }, 100); // Pequeno atraso para garantir que a impressão seja iniciada
+}
+
+
+function formatarValorParaImpressao(valor) {
+  
+  return formatarMoeda(valor);
+}
