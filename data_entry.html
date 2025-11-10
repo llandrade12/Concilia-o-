@@ -266,6 +266,64 @@
         flex: 1;
       }
     }
+    
+    @media screen and (max-width: 768px) {
+      .data-table thead {
+        display: none;
+      }
+
+      .data-table, 
+      .data-table tbody, 
+      .data-table tr, 
+      .data-table td {
+        display: block;
+        width: 100%;
+      }
+
+      .data-table tr {
+        margin-bottom: 15px;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        overflow: hidden;
+        background: rgba(255, 255, 255, 0.01);
+      }
+      
+      .data-table tr.empty-message {
+        border: none;
+        background: transparent;
+      }
+
+      .data-table td {
+        text-align: right;
+        padding-left: 50%;
+        position: relative;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .data-table td::before {
+        content: attr(data-label);
+        position: absolute;
+        left: 10px;
+        width: calc(50% - 20px);
+        text-align: left;
+        font-weight: 600;
+        color: var(--muted);
+        text-transform: uppercase;
+        font-size: 0.75rem;
+      }
+      
+      .data-table td:last-child {
+        border-bottom: 0;
+      }
+
+      .data-table td[data-label="Ação"] {
+        text-align: center;
+        padding-left: 0;
+      }
+      .data-table td[data-label="Ação"]::before {
+          display: none;
+      }
+    }
   </style>
 </head>
 <body>
@@ -280,7 +338,10 @@
       </div>
 
       <div class="header-actions">
-        <button title="Voltar para Conciliação" onclick="window.location.href='index.html'">
+        <button title="Salvar progresso localmente" onclick="salvarLocal(event)">
+          <i class="fa-solid fa-save"></i> Salvar Local
+        </button>
+        <button title="Voltar para Conciliação" onclick="transferirParaConciliacao()">
           <i class="fa-solid fa-arrow-left"></i> Voltar
         </button>
       </div>
@@ -288,7 +349,6 @@
 
     <main style="display: block; padding: 22px;">
       <div class="data-entry-container">
-        <!-- SEÇÃO RENOVAÇÃO -->
         <div class="entry-section">
           <h2><i class="fa-solid fa-retweet"></i> Renovações</h2>
           
@@ -377,7 +437,6 @@
           </div>
         </div>
 
-        <!-- SEÇÃO CLIENTE NOVO -->
         <div class="entry-section">
           <h2><i class="fa-solid fa-user-plus"></i> Novos Clientes</h2>
           
@@ -468,22 +527,19 @@
       </div>
 
       <div style="margin-top: 18px; text-align: center;">
-        <button class="btn btn-back" onclick="window.location.href='index.html'">
+        <button class="btn btn-back" onclick="transferirParaConciliacao()">
           <i class="fa-solid fa-arrow-left"></i> Voltar para Conciliação
         </button>
       </div>
     </main>
   </div>
 
-  <!-- Inclusão da biblioteca SheetJS/xlsx -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
   <script>
-    // Dados globais
     let dadosRenovacao = [];
     let dadosNovo = [];
 
-    // Formatar moeda
     function formatarMoeda(valor ) {
       return new Intl.NumberFormat('pt-BR', {
         style: 'currency',
@@ -491,14 +547,12 @@
       }).format(valor);
     }
 
-    // Formatar data
     function formatarData(dataStr) {
       if (!dataStr) return '';
       const [ano, mes, dia] = dataStr.split('-');
       return `${dia}/${mes}/${ano}`;
     }
 
-    // Mostrar mensagem de sucesso
     function mostrarSucesso(elementId, mensagem) {
       const el = document.getElementById(elementId);
       el.textContent = mensagem;
@@ -506,7 +560,6 @@
       setTimeout(() => el.classList.remove('show'), 3000);
     }
 
-    // Preencher Data Final automaticamente (Data Inicial + 19 dias)
     function preencherDataFinal(prefixo) {
       const dataInicialInput = document.getElementById(`dataInicial_${prefixo}`);
       const dataFinalInput = document.getElementById(`dataFinal_${prefixo}`);
@@ -524,7 +577,6 @@
       }
     }
 
-    // Limpar formulário
     function limparFormulario(prefixo) {
       document.getElementById(`cliente_${prefixo}`).value = '';
       document.getElementById(`cpf_${prefixo}`).value = '';
@@ -534,7 +586,6 @@
       document.getElementById(`emprestimo_${prefixo}`).value = '';
     }
 
-    // Atualizar estatísticas
     function atualizarStats(tipo) {
       const dados = tipo === 'renovacao' ? dadosRenovacao : dadosNovo;
       const totalEl = document.getElementById(`total${tipo === 'renovacao' ? 'Renovacao' : 'Novo'}`);
@@ -547,7 +598,6 @@
       totalEmpEl.textContent = formatarMoeda(totalEmp);
     }
 
-    // Atualizar tabela
     function atualizarTabela(tipo) {
       const dados = tipo === 'renovacao' ? dadosRenovacao : dadosNovo;
       const corpoId = tipo === 'renovacao' ? 'corpoRenovacao' : 'corpoNovo';
@@ -561,14 +611,14 @@
 
       corpo.innerHTML = dados.map((item, idx) => `
         <tr>
-          <td>${idx + 1}</td>
-          <td>${item.cliente}</td>
-          <td>${item.cpf}</td>
-          <td>${item.telefone}</td>
-          <td>${formatarData(item.dataInicial)}</td>
-          <td>${formatarData(item.dataFinal)}</td>
-          <td>${formatarMoeda(item.emprestimo)}</td>
-          <td>
+          <td data-label="#">${idx + 1}</td>
+          <td data-label="Cliente">${item.cliente}</td>
+          <td data-label="CPF">${item.cpf}</td>
+          <td data-label="Telefone">${item.telefone}</td>
+          <td data-label="Data Inicial">${formatarData(item.dataInicial)}</td>
+          <td data-label="Data Final">${formatarData(item.dataFinal)}</td>
+          <td data-label="Empréstimo">${formatarMoeda(item.emprestimo)}</td>
+          <td data-label="Ação">
             <button class="btn btn-delete-row" onclick="deletarRegistro('${tipo}', ${idx})">
               <i class="fa-solid fa-trash"></i>
             </button>
@@ -579,7 +629,6 @@
       atualizarStats(tipo);
     }
 
-    // Deletar registro
     function deletarRegistro(tipo, idx) {
       if (confirm('Deseja realmente remover este registro?')) {
         if (tipo === 'renovacao') {
@@ -592,7 +641,6 @@
       }
     }
 
-    // Adicionar renovação
     function adicionarRenovacao() {
       const cliente = document.getElementById('cliente_renov').value.trim();
       const cpf = document.getElementById('cpf_renov').value.trim();
@@ -612,7 +660,6 @@
       mostrarSucesso('successRenovacao', '✅ Renovação adicionada!');
     }
 
-    // Adicionar cliente novo
     function adicionarClienteNovo() {
       const cliente = document.getElementById('cliente_novo').value.trim();
       const cpf = document.getElementById('cpf_novo').value.trim();
@@ -632,7 +679,6 @@
       mostrarSucesso('successNovo', '✅ Cliente novo adicionado!');
     }
 
-    // *** NOVO: Exportar para Excel (.xlsx) ***
     function exportarExcel(dados, nomeArquivo) {
       if (dados.length === 0) {
         alert('⚠️ Nenhum dado para exportar!');
@@ -643,7 +689,6 @@
         return;
       }
 
-      // Mapeia os dados para o formato desejado, incluindo todas as colunas
       const dadosParaPlanilha = dados.map(item => ({
         'Cliente': item.cliente,
         'CPF': item.cpf,
@@ -655,21 +700,15 @@
 
       const ws = XLSX.utils.json_to_sheet(dadosParaPlanilha);
 
-      // Formata a coluna de empréstimo como moeda
       ws['!cols'] = [
-        { wch: 30 }, // Cliente
-        { wch: 15 }, // CPF
-        { wch: 15 }, // Telefone
-        { wch: 12 }, // Data Inicial
-        { wch: 12 }, // Data Final
-        { wch: 15 }  // Empréstimo
+        { wch: 30 }, { wch: 15 }, { wch: 15 }, { wch: 12 }, { wch: 12 }, { wch: 15 }
       ];
       
       for (let i = 2; i <= dadosParaPlanilha.length + 1; i++) {
         const cellRef = `F${i}`;
         if (ws[cellRef]) {
-          ws[cellRef].t = 'n'; // Define o tipo como número
-          ws[cellRef].z = 'R$ #,##0.00'; // Define o formato da célula
+          ws[cellRef].t = 'n';
+          ws[cellRef].z = 'R$ #,##0.00';
         }
       }
 
@@ -690,14 +729,12 @@
       exportarExcel(dadosNovo, 'Novos_Clientes');
     }
 
-    // *** NOVO: Copiar apenas Nome e Empréstimo ***
     function copiarClipboard(dados, successId) {
       if (dados.length === 0) {
         alert('⚠️ Nenhum dado para copiar!');
         return;
       }
 
-      // Cria o texto separado por tabulação (Nome [TAB] Empréstimo)
       let tsv = dados.map(item => {
         const emp = item.emprestimo.toString().replace('.', ',');
         return `${item.cliente}\t${emp}`;
@@ -718,20 +755,48 @@
       copiarClipboard(dadosNovo, 'successNovo');
     }
 
+    function salvarLocal(event) {
+        const dataPayload = {
+            renovacoes: dadosRenovacao,
+            novos: dadosNovo
+        };
+        localStorage.setItem('espartano_dados_detalhados', JSON.stringify(dataPayload));
+
+        const botao = event.target.closest('button');
+        const textoOriginal = botao.innerHTML;
+        botao.innerHTML = '<i class="fa-solid fa-check"></i> Salvo!';
+        setTimeout(() => {
+            botao.innerHTML = textoOriginal;
+        }, 2000);
+        mostrarSucesso('successRenovacao', '✅ Progresso salvo no navegador!');
+    }
+
+    function transferirParaConciliacao() {
+        const dadosParaTransferir = {
+            renovacoes: dadosRenovacao.map(item => ({ nome: item.cliente, valor: item.emprestimo })),
+            novos: dadosNovo.map(item => ({ nome: item.cliente, valor: item.emprestimo }))
+        };
+        localStorage.setItem('espartano2_transferencia', JSON.stringify(dadosParaTransferir));
+        window.location.href = 'index.html';
+    }
+
     window.addEventListener('load', function() {
-      const dadosTransferidos = localStorage.getItem('espartano2_transferencia');
-      if (dadosTransferidos) {
-        try {
-          const dados = JSON.parse(dadosTransferidos);
-          if (dados.renovacoes) dadosRenovacao = dados.renovacoes;
-          if (dados.novos) dadosNovo = dados.novos;
-          localStorage.removeItem('espartano2_transferencia');
-          atualizarTabela('renovacao');
-          atualizarTabela('novo');
-        } catch (e) {
-          console.error('Erro ao carregar dados:', e);
+        const dadosSalvos = localStorage.getItem('espartano_dados_detalhados');
+        if (dadosSalvos) {
+            try {
+                const data = JSON.parse(dadosSalvos);
+                if (data.renovacoes) {
+                    dadosRenovacao = data.renovacoes;
+                    atualizarTabela('renovacao');
+                }
+                if (data.novos) {
+                    dadosNovo = data.novos;
+                    atualizarTabela('novo');
+                }
+            } catch (e) {
+                console.error('Erro ao carregar dados locais:', e);
+            }
         }
-      }
     });
 
     document.addEventListener('DOMContentLoaded', function() {
