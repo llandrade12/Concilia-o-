@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Sistema de Conciliação Financeira ESPARTANO">
+  <title>Conciliação ESPARTANO </title>
+
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+  
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="wrap">
+    <header class="app-header">
+      <div class="title">
+        <div class="logo">ES</div>
+        <div>
+          <h1>Conciliação ESPARTANO </h1>
+          <div class="subtitle">Painel de Conciliação </div>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <button title="Entrada de Dados Detalhada" onclick="window.location.href='data_entry.html'">
+          <i class="fa-solid fa-table"></i> Dados Detalhados
+        </button>
+        <button title="Exportar Excel" onclick="exportarExcel()">
+          <i class="fa-solid fa-file-excel"></i> Exportar
+        </button>
+        <button title="Gerar PDF (imprimir)" onclick="window.print()">
+          <i class="fa-solid fa-file-pdf"></i> PDF
+        </button>
+        <button title="Gerar Link" onclick="gerarLink(event)">
+          <i class="fa-solid fa-link"></i> Link
+        </button>
+        <button title="Salvar local" onclick="salvarLocal(event)">
+          <i class="fa-solid fa-save"></i> Salvar
+        </button>
+        <button title="Zerar tudo" onclick="zerarTudo()" class="btn-danger">
+          <i class="fa-solid fa-trash"></i> Zerar
+        </button>
+      </div>
+    </header>
+
+    <main>
+      <section class="panel main-panel">
+        <h2><i class="fa-solid fa-wallet"></i> Dados da Conciliação</h2>
+
+        <input 
+          type="text" 
+          id="estadoNome" 
+          placeholder="Digite o nome do Estado/Local" 
+          class="input-estado"
+        >
+
+        <div class="panel sub-panel">
+          <div class="grid-2col">
+            <div>
+              <label for="dataSaldoInicial">Data Saldo Inicial</label>
+              <input type="date" id="dataSaldoInicial" onchange="atualizarResumo()">
+            </div>
+            <div>
+              <label for="saldoInicial">Saldo Inicial (R$)</label>
+              <input 
+                type="number" 
+                id="saldoInicial" 
+                step="0.01" 
+                value="0.00" 
+                onchange="atualizarResumo()" 
+                class="saldo-input"
+              >
+            </div>
+          </div>
+        </div>
+
+        <div class="panel sub-panel">
+          <h2><i class="fa-solid fa-retweet"></i> Renovações</h2>
+          <table id="tabelaRenovacoes">
+            <thead>
+              <tr>
+                <th style="width:40px">#</th>
+                <th>Nome</th>
+                <th style="width:170px">Valor (R$)</th>
+                <th style="width:70px"></th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+            <tfoot></tfoot>
+          </table>
+
+          <div class="btn-group">
+            <button class="btn btn-add" onclick="adicionarRenovacao()">
+              <i class="fa-solid fa-table"></i> Ir para Entrada Detalhada
+            </button>
+            <button class="btn btn-paste" onclick="togglePasteArea('renovacao')">
+              <i class="fa-solid fa-paste"></i> Colar em Lote
+            </button>
+          </div>
+
+          <div id="pasteArea-renovacao" class="paste-container" style="display:none;">
+            <label>Cole colunas (Nome[TAB]Valor) do Excel:</label>
+            <textarea 
+              id="pasteText-renovacao" 
+              onpaste="handlePaste(event, 'renovacao')" 
+              placeholder="Cole aqui os dados do Excel..."
+            ></textarea>
+            <div class="paste-actions">
+              <button class="btn" onclick="togglePasteArea('renovacao')">Cancelar</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel sub-panel">
+          <h2><i class="fa-solid fa-user-plus"></i> Novos Clientes</h2>
+          <table id="tabelaNovos">
+            <thead>
+              <tr>
+                <th style="width:40px">#</th>
+                <th>Nome</th>
+                <th style="width:170px">Valor (R$)</th>
+                <th style="width:70px"></th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+            <tfoot></tfoot>
+          </table>
+
+          <div class="btn-group">
+            <button class="btn btn-add" onclick="adicionarNovo()">
+              <i class="fa-solid fa-table"></i> Ir para Entrada Detalhada
+            </button>
+            <button class="btn btn-paste" onclick="togglePasteArea('novo')">
+              <i class="fa-solid fa-paste"></i> Colar em Lote
+            </button>
+          </div>
+
+          <div id="pasteArea-novo" class="paste-container" style="display:none;">
+            <label>Cole colunas (Nome[TAB]Valor) do Excel:</label>
+            <textarea 
+              id="pasteText-novo" 
+              onpaste="handlePaste(event, 'novo')" 
+              placeholder="Cole aqui os dados do Excel..."
+            ></textarea>
+            <div class="paste-actions">
+              <button class="btn" onclick="togglePasteArea('novo')">Cancelar</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel sub-panel">
+          <h2><i class="fa-solid fa-arrow-down"></i> Entradas Diversas</h2>
+          <table id="tabelaEntradas">
+            <thead>
+              <tr>
+                <th style="width:40px">#</th>
+                <th>Descrição</th>
+                <th style="width:170px">Valor (R$)</th>
+                <th style="width:70px"></th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+            <tfoot></tfoot>
+          </table>
+
+          <div class="btn-group">
+            <button class="btn btn-add" onclick="adicionarEntrada()">
+              <i class="fa-solid fa-plus"></i> Adicionar
+            </button>
+            <button class="btn btn-paste" onclick="togglePasteArea('entrada')">
+              <i class="fa-solid fa-paste"></i> Colar em Lote
+            </button>
+          </div>
+
+          <div id="pasteArea-entrada" class="paste-container" style="display:none;">
+            <label>Cole colunas (Descrição[TAB]Valor) do Excel:</label>
+            <textarea 
+              id="pasteText-entrada" 
+              onpaste="handlePaste(event, 'entrada')" 
+              placeholder="Cole aqui os dados do Excel..."
+            ></textarea>
+            <div class="paste-actions">
+              <button class="btn" onclick="togglePasteArea('entrada')">Cancelar</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel sub-panel">
+          <h2><i class="fa-solid fa-arrow-up"></i> Saídas Diversas</h2>
+          <table id="tabelaSaidas">
+            <thead>
+              <tr>
+                <th style="width:40px">#</th>
+                <th>Descrição</th>
+                <th style="width:170px">Valor (R$)</th>
+                <th style="width:70px"></th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+            <tfoot></tfoot>
+          </table>
+
+          <div class="btn-group">
+            <button class="btn btn-add" onclick="adicionarSaida()">
+              <i class="fa-solid fa-plus"></i> Adicionar
+            </button>
+            <button class="btn btn-paste" onclick="togglePasteArea('saida')">
+              <i class="fa-solid fa-paste"></i> Colar em Lote
+            </button>
+          </div>
+
+          <div id="pasteArea-saida" class="paste-container" style="display:none;">
+            <label>Cole colunas (Descrição[TAB]Valor) do Excel:</label>
+            <textarea 
+              id="pasteText-saida" 
+              onpaste="handlePaste(event, 'saida')" 
+              placeholder="Cole aqui os dados do Excel..."
+            ></textarea>
+            <div class="paste-actions">
+              <button class="btn" onclick="togglePasteArea('saida')">Cancelar</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel sub-panel">
+          <div class="grid-2col">
+            <div>
+              <label for="dataSaldoFinal">Data Saldo Final</label>
+              <input type="date" id="dataSaldoFinal" onchange="atualizarResumo()">
+            </div>
+            <div>
+              <label for="saldoFinal">Saldo Final em Conta (R$)</label>
+              <input 
+                type="number" 
+                id="saldoFinal" 
+                step="0.01" 
+                value="0.00" 
+                onchange="atualizarResumo()" 
+                class="saldo-input"
+              >
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:18px;">
+          <button class="btn btn-conciliacao" onclick="gerarConciliacao()">
+            <i class="fa-solid fa-file-invoice-dollar"></i> Gerar Texto de Conciliação
+          </button>
+        </div>
+
+        <div id="conciliacaoOutput" class="conciliacao-output"></div>
+
+        <div id="linkContainer" class="link-container" style="display:none;">
+          <label>Link gerado (compartilhável):</label>
+          <div class="link-display">
+            <code id="linkGerado"></code>
+            <button class="btn btn-copy" onclick="copiarLink(event)">
+              <i class="fa-solid fa-copy"></i> Copiar
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <aside class="side">
+        <div id="resumoEmpty" class="card">
+          <h3><i class="fa-solid fa-chart-line"></i> Resumo</h3>
+          <p style="color:var(--muted); font-size:0.9rem; margin-top:12px;">
+            Preencha os dados para visualizar o resumo da conciliação.
+          </p>
+        </div>
+
+        <div id="resumo" class="card" style="display:none;">
+          <h3><i class="fa-solid fa-chart-line"></i> Resumo Financeiro</h3>
+          
+          <div class="resumo-item">
+            <span>Saldo Inicial:</span>
+            <strong id="resSaldoInicial">R$ 0,00</strong>
+          </div>
+          
+          <div class="resumo-item">
+            <span>+ Renovações:</span>
+            <strong id="resRenovacoes">R$ 0,00</strong>
+          </div>
+          
+          <div class="resumo-item">
+            <span>+ Novos Clientes:</span>
+            <strong id="resNovos">R$ 0,00</strong>
+          </div>
+          
+          <div class="resumo-item">
+            <span>+ Entradas Diversas:</span>
+            <strong id="resEntradas">R$ 0,00</strong>
+          </div>
+          
+          <div class="resumo-item">
+            <span>- Saídas Diversas:</span>
+            <strong id="resSaidas">R$ 0,00</strong>
+          </div>
+          
+          <hr style="border:none; border-top:1px solid var(--border); margin:12px 0;">
+          
+          <div class="resumo-item">
+            <span>Saldo Final (<span id="dataFinalResumo">--/--/----</span>):</span>
+            <strong id="resSaldoFinal">R$ 0,00</strong>
+          </div>
+          
+          <div class="resumo-item" style="font-size:1.1rem; margin-top:8px;">
+            <span>Diferença:</span>
+            <strong id="resDiferenca">R$ 0,00</strong>
+          </div>
+        </div>
+
+        <div id="graficoCard" class="card" style="display:none;">
+          <h3><i class="fa-solid fa-chart-bar"></i>Gráfico</h3>
+          
+          <div class="grafico-container">
+            <div class="grafico-item">
+              <div class="grafico-label">
+                <span>Saldo Inicial</span>
+                <strong id="grafSaldoInicial">R$ 0,00</strong>
+              </div>
+              <div class="grafico-barra-container">
+                <div id="barraSaldoInicial" class="grafico-barra barra-inicial" style="width: 0%;"></div>
+              </div>
+            </div>
+
+            <div class="grafico-item">
+              <div class="grafico-label">
+                <span>+ Renovações</span>
+                <strong id="grafRenovacoes">R$ 0,00</strong>
+              </div>
+              <div class="grafico-barra-container">
+                <div id="barraRenovacoes" class="grafico-barra barra-positiva" style="width: 0%;"></div>
+              </div>
+            </div>
+
+            <div class="grafico-item">
+              <div class="grafico-label">
+                <span>+ Novos Clientes</span>
+                <strong id="grafNovos">R$ 0,00</strong>
+              </div>
+              <div class="grafico-barra-container">
+                <div id="barraNovos" class="grafico-barra barra-positiva" style="width: 0%;"></div>
+              </div>
+            </div>
+
+            <div class="grafico-item">
+              <div class="grafico-label">
+                <span>+ Entradas Diversas</span>
+                <strong id="grafEntradas">R$ 0,00</strong>
+              </div>
+              <div class="grafico-barra-container">
+                <div id="barraEntradas" class="grafico-barra barra-positiva" style="width: 0%;"></div>
+              </div>
+            </div>
+
+            <div class="grafico-item">
+              <div class="grafico-label">
+                <span>- Saídas Diversas</span>
+                <strong id="grafSaidas">R$ 0,00</strong>
+              </div>
+              <div class="grafico-barra-container">
+                <div id="barraSaidas" class="grafico-barra barra-negativa" style="width: 0%;"></div>
+              </div>
+            </div>
+
+            <hr style="border:none; border-top:1px solid var(--border); margin:16px 0;">
+
+            <div class="grafico-item">
+              <div class="grafico-label">
+                <span>Saldo Final</span>
+                <strong id="grafSaldoFinal">R$ 0,00</strong>
+              </div>
+              <div class="grafico-barra-container">
+                <div id="barraSaldoFinal" class="grafico-barra barra-final" style="width: 0%;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3><i class="fa-solid fa-info-circle"></i> Sistema</h3>
+          <div class="resumo-item">
+            <span>Data:</span>
+            <strong id="dataAtual">--/--/----</strong>
+          </div>
+          <div class="resumo-item">
+            <span>Hora:</span>
+            <strong id="horaAtual">--:--:--</strong>
+          </div>
+          <div style="margin-top:12px; color:var(--muted); font-size:0.85rem;">
+            <i class="fa-solid fa-circle-check"></i> <span id="status">Sistema Pronto</span>
+          </div>
+        </div>
+      </aside>
+    </main>
+
+    <footer class="footer">
+      <div>
+        <strong>ESPARTANO</strong> — Sistema de Conciliação 2.0
+      </div>
+      <div>
+        Desenvolvido por Aislan <i class="fa fa-low-vision" style="color:#ef4444;"></i> 
+      </div>
+    </footer>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  
+  <script src="script.js"></script>
+</body>
+</html>
