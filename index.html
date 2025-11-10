@@ -3,15 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Sistema de Conciliação Financeira ESPARTANO">
+  <meta name="description" content="Sistema de Conciliação Financeira ESPARTANO 2 - Dark Executive">
   <title>Conciliação ESPARTANO </title>
 
+  <!-- Font Awesome para ícones -->
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
   
+  <!-- CSS externo -->
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <div class="wrap">
+    <!-- HEADER -->
     <header class="app-header">
       <div class="title">
         <div class="logo">ES</div>
@@ -28,8 +31,8 @@
         <button title="Exportar Excel" onclick="exportarExcel()">
           <i class="fa-solid fa-file-excel"></i> Exportar
         </button>
-        <button title="Gerar PDF (imprimir)" onclick="window.print()">
-          <i class="fa-solid fa-file-pdf"></i> PDF
+        <button title="Imprimir Conciliação" onclick="imprimirConciliacao()">
+          <i class="fa-solid fa-print"></i> Imprimir
         </button>
         <button title="Gerar Link" onclick="gerarLink(event)">
           <i class="fa-solid fa-link"></i> Link
@@ -43,7 +46,9 @@
       </div>
     </header>
 
+    <!-- MAIN CONTENT -->
     <main>
+      <!-- LEFT: formulários e tabelas -->
       <section class="panel main-panel">
         <h2><i class="fa-solid fa-wallet"></i> Dados da Conciliação</h2>
 
@@ -54,6 +59,7 @@
           class="input-estado"
         >
 
+        <!-- Saldo Inicial -->
         <div class="panel sub-panel">
           <div class="grid-2col">
             <div>
@@ -74,6 +80,7 @@
           </div>
         </div>
 
+        <!-- RENOVAÇÕES -->
         <div class="panel sub-panel">
           <h2><i class="fa-solid fa-retweet"></i> Renovações</h2>
           <table id="tabelaRenovacoes">
@@ -91,7 +98,7 @@
 
           <div class="btn-group">
             <button class="btn btn-add" onclick="adicionarRenovacao()">
-              <i class="fa-solid fa-table"></i> Ir para Entrada Detalhada
+              <i class="fa-solid fa-plus"></i> Adicionar
             </button>
             <button class="btn btn-paste" onclick="togglePasteArea('renovacao')">
               <i class="fa-solid fa-paste"></i> Colar em Lote
@@ -111,6 +118,7 @@
           </div>
         </div>
 
+        <!-- NOVOS CLIENTES -->
         <div class="panel sub-panel">
           <h2><i class="fa-solid fa-user-plus"></i> Novos Clientes</h2>
           <table id="tabelaNovos">
@@ -128,7 +136,7 @@
 
           <div class="btn-group">
             <button class="btn btn-add" onclick="adicionarNovo()">
-              <i class="fa-solid fa-table"></i> Ir para Entrada Detalhada
+              <i class="fa-solid fa-plus"></i> Adicionar
             </button>
             <button class="btn btn-paste" onclick="togglePasteArea('novo')">
               <i class="fa-solid fa-paste"></i> Colar em Lote
@@ -148,6 +156,7 @@
           </div>
         </div>
 
+        <!-- ENTRADAS DIVERSAS -->
         <div class="panel sub-panel">
           <h2><i class="fa-solid fa-arrow-down"></i> Entradas Diversas</h2>
           <table id="tabelaEntradas">
@@ -185,6 +194,7 @@
           </div>
         </div>
 
+        <!-- SAÍDAS DIVERSAS -->
         <div class="panel sub-panel">
           <h2><i class="fa-solid fa-arrow-up"></i> Saídas Diversas</h2>
           <table id="tabelaSaidas">
@@ -222,6 +232,7 @@
           </div>
         </div>
 
+        <!-- SALDO FINAL -->
         <div class="panel sub-panel">
           <div class="grid-2col">
             <div>
@@ -242,14 +253,17 @@
           </div>
         </div>
 
+        <!-- BOTÃO GERAR CONCILIAÇÃO -->
         <div style="margin-top:18px;">
           <button class="btn btn-conciliacao" onclick="gerarConciliacao()">
             <i class="fa-solid fa-file-invoice-dollar"></i> Gerar Texto de Conciliação
           </button>
         </div>
 
+        <!-- OUTPUT DA CONCILIAÇÃO -->
         <div id="conciliacaoOutput" class="conciliacao-output"></div>
 
+        <!-- LINK GERADO -->
         <div id="linkContainer" class="link-container" style="display:none;">
           <label>Link gerado (compartilhável):</label>
           <div class="link-display">
@@ -261,7 +275,9 @@
         </div>
       </section>
 
+      <!-- RIGHT: resumo e status -->
       <aside class="side">
+        <!-- Resumo vazio -->
         <div id="resumoEmpty" class="card">
           <h3><i class="fa-solid fa-chart-line"></i> Resumo</h3>
           <p style="color:var(--muted); font-size:0.9rem; margin-top:12px;">
@@ -269,6 +285,7 @@
           </p>
         </div>
 
+        <!-- Resumo com dados -->
         <div id="resumo" class="card" style="display:none;">
           <h3><i class="fa-solid fa-chart-line"></i> Resumo Financeiro</h3>
           
@@ -310,10 +327,12 @@
           </div>
         </div>
 
+        <!-- Gráfico Visual -->
         <div id="graficoCard" class="card" style="display:none;">
-          <h3><i class="fa-solid fa-chart-bar"></i>Gráfico</h3>
+          <h3><i class="fa-solid fa-chart-bar"></i> Visualização Gráfica</h3>
           
           <div class="grafico-container">
+            <!-- Saldo Inicial -->
             <div class="grafico-item">
               <div class="grafico-label">
                 <span>Saldo Inicial</span>
@@ -324,6 +343,7 @@
               </div>
             </div>
 
+            <!-- Renovações -->
             <div class="grafico-item">
               <div class="grafico-label">
                 <span>+ Renovações</span>
@@ -334,6 +354,7 @@
               </div>
             </div>
 
+            <!-- Novos Clientes -->
             <div class="grafico-item">
               <div class="grafico-label">
                 <span>+ Novos Clientes</span>
@@ -344,6 +365,7 @@
               </div>
             </div>
 
+            <!-- Entradas Diversas -->
             <div class="grafico-item">
               <div class="grafico-label">
                 <span>+ Entradas Diversas</span>
@@ -354,6 +376,7 @@
               </div>
             </div>
 
+            <!-- Saídas Diversas -->
             <div class="grafico-item">
               <div class="grafico-label">
                 <span>- Saídas Diversas</span>
@@ -366,6 +389,7 @@
 
             <hr style="border:none; border-top:1px solid var(--border); margin:16px 0;">
 
+            <!-- Saldo Final -->
             <div class="grafico-item">
               <div class="grafico-label">
                 <span>Saldo Final</span>
@@ -378,6 +402,7 @@
           </div>
         </div>
 
+        <!-- Info do sistema -->
         <div class="card">
           <h3><i class="fa-solid fa-info-circle"></i> Sistema</h3>
           <div class="resumo-item">
@@ -395,12 +420,13 @@
       </aside>
     </main>
 
+    <!-- FOOTER -->
     <footer class="footer">
       <div>
-        <strong>ESPARTANO</strong> — Sistema de Conciliação 2.0
+        <strong>ESPARTANO </strong> — Sistema de Conciliação Financeira
       </div>
       <div>
-        Desenvolvido por Aislan <i class="fa fa-low-vision" style="color:#ef4444;"></i> 
+        Prototipo <i class="fa-solid fa-heart" style="color:#0026ff;"></i> 
       </div>
     </footer>
   </div>
