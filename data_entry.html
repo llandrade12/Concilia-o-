@@ -18,7 +18,7 @@
     }
 
     .entry-section {
-      background: linear-gradient(180deg, rgba(255, 255, 255, 0.015), rgba(255, 255, 255, 0.01));
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.015 ), rgba(255, 255, 255, 0.01));
       border-radius: 10px;
       padding: 18px;
       border: 1px solid var(--border);
@@ -475,13 +475,16 @@
     </main>
   </div>
 
+  <!-- Inclusão da biblioteca SheetJS/xlsx -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
   <script>
     // Dados globais
     let dadosRenovacao = [];
     let dadosNovo = [];
 
     // Formatar moeda
-    function formatarMoeda(valor) {
+    function formatarMoeda(valor ) {
       return new Intl.NumberFormat('pt-BR', {
         style: 'currency',
         currency: 'BRL'
@@ -629,7 +632,56 @@
       mostrarSucesso('successNovo', '✅ Cliente novo adicionado!');
     }
 
-    // Exportar para Excel
+    // *** NOVO: Exportar para Excel (.xlsx) ***
+    function exportarExcel(dados, nomeArquivo) {
+      if (dados.length === 0) {
+        alert('⚠️ Nenhum dado para exportar!');
+        return;
+      }
+      if (typeof XLSX === 'undefined') {
+        alert('Erro: A biblioteca de exportação (XLSX) não foi carregada. Verifique a conexão com a internet.');
+        return;
+      }
+
+      // Mapeia os dados para o formato desejado, incluindo todas as colunas
+      const dadosParaPlanilha = dados.map(item => ({
+        'Cliente': item.cliente,
+        'CPF': item.cpf,
+        'Telefone': item.telefone,
+        'Data Inicial': formatarData(item.dataInicial),
+        'Data Final': formatarData(item.dataFinal),
+        'Empréstimo': item.emprestimo
+      }));
+
+      const ws = XLSX.utils.json_to_sheet(dadosParaPlanilha);
+
+      // Formata a coluna de empréstimo como moeda
+      ws['!cols'] = [
+        { wch: 30 }, // Cliente
+        { wch: 15 }, // CPF
+        { wch: 15 }, // Telefone
+        { wch: 12 }, // Data Inicial
+        { wch: 12 }, // Data Final
+        { wch: 15 }  // Empréstimo
+      ];
+      
+      for (let i = 2; i <= dadosParaPlanilha.length + 1; i++) {
+        const cellRef = `F${i}`;
+        if (ws[cellRef]) {
+          ws[cellRef].t = 'n'; // Define o tipo como número
+          ws[cellRef].z = 'R$ #,##0.00'; // Define o formato da célula
+        }
+      }
+
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Dados');
+
+      const nomeFinal = `${nomeArquivo}_${new Date().toISOString().split('T')[0]}.xlsx`;
+      XLSX.writeFile(wb, nomeFinal);
+      
+      mostrarSucesso(nomeArquivo === 'Renovacoes' ? 'successRenovacao' : 'successNovo', '✅ Arquivo Excel exportado!');
+    }
+
     function exportarExcelRenovacao() {
       exportarExcel(dadosRenovacao, 'Renovacoes');
     }
@@ -638,34 +690,26 @@
       exportarExcel(dadosNovo, 'Novos_Clientes');
     }
 
-    function exportarExcel(dados, nomeArquivo) {
+    // *** NOVO: Copiar apenas Nome e Empréstimo ***
+    function copiarClipboard(dados, successId) {
       if (dados.length === 0) {
-        alert('⚠️ Nenhum dado para exportar!');
+        alert('⚠️ Nenhum dado para copiar!');
         return;
       }
 
-      let csv = 'CLIENTE\tCPF\tTelefone\tData Inicial\tData Final\tEmpréstimo (R$)\n';
-      dados.forEach(item => {
+      // Cria o texto separado por tabulação (Nome [TAB] Empréstimo)
+      let tsv = dados.map(item => {
         const emp = item.emprestimo.toString().replace('.', ',');
-        csv += `${item.cliente}\t${item.cpf}\t${item.telefone}\t${formatarData(item.dataInicial)}\t${formatarData(item.dataFinal)}\t${emp}\n`;
-      });
+        return `${item.cliente}\t${emp}`;
+      }).join('\n');
 
-      const blob = new Blob([csv], { type: 'text/plain;charset=utf-8;' });
-      const link = document.createElement('a');
-      const url = URL.createObjectURL(blob);
-      
-      link.setAttribute('href', url);
-      link.setAttribute('download', `${nomeArquivo}_${new Date().toISOString().split('T')[0]}.txt`);
-      link.style.visibility = 'hidden';
-      
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      
-      mostrarSucesso(nomeArquivo === 'Renovacoes' ? 'successRenovacao' : 'successNovo', '✅ Arquivo exportado!');
+      navigator.clipboard.writeText(tsv).then(() => {
+        mostrarSucesso(successId, '✅ Nome e Empréstimo copiados! Cole no Excel.');
+      }).catch(() => {
+        alert('❌ Erro ao copiar!');
+      });
     }
 
-    // Copiar para clipboard
     function copiarClipboardRenovacao() {
       copiarClipboard(dadosRenovacao, 'successRenovacao');
     }
@@ -674,26 +718,6 @@
       copiarClipboard(dadosNovo, 'successNovo');
     }
 
-    function copiarClipboard(dados, successId) {
-      if (dados.length === 0) {
-        alert('⚠️ Nenhum dado para copiar!');
-        return;
-      }
-
-      let tsv = 'CLIENTE\tCPF\tTelefone\tData Inicial\tData Final\tEmpréstimo (R$)\n';
-      dados.forEach(item => {
-        const emp = item.emprestimo.toString().replace('.', ',');
-        tsv += `${item.cliente}\t${item.cpf}\t${item.telefone}\t${formatarData(item.dataInicial)}\t${formatarData(item.dataFinal)}\t${emp}\n`;
-      });
-
-      navigator.clipboard.writeText(tsv).then(() => {
-        mostrarSucesso(successId, '✅ Copiado! Cole no Excel com Ctrl+V');
-      }).catch(() => {
-        alert('❌ Erro ao copiar!');
-      });
-    }
-
-    // Carregar dados ao iniciar
     window.addEventListener('load', function() {
       const dadosTransferidos = localStorage.getItem('espartano2_transferencia');
       if (dadosTransferidos) {
@@ -710,7 +734,6 @@
       }
     });
 
-    // Permitir Enter para adicionar
     document.addEventListener('DOMContentLoaded', function() {
       const inputsRenov = ['cliente_renov', 'cpf_renov', 'telefone_renov', 'dataInicial_renov', 'dataFinal_renov', 'emprestimo_renov'];
       const inputsNovo = ['cliente_novo', 'cpf_novo', 'telefone_novo', 'dataInicial_novo', 'dataFinal_novo', 'emprestimo_novo'];
