@@ -563,39 +563,6 @@ tfoot td {
   }
 }
 
-@media print {
-  body {
-    background: white;
-    color: black;
-  }
-
-  .wrap {
-    box-shadow: none;
-    border: none;
-  }
-
-  .header-actions,
-  .btn-group,
-  .paste-container,
-  .link-container {
-    display: none !important;
-  }
-
-  .panel,
-  .card {
-    break-inside: avoid;
-  }
-
-  table {
-    page-break-inside: auto;
-  }
-
-  tr {
-    page-break-inside: avoid;
-    page-break-after: auto;
-  }
-}
-
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -729,33 +696,26 @@ tfoot td {
   }
 }
 
+/* --- ESTILOS DE IMPRESSÃO --- */
 @media print {
-  .app-header, 
-  .header-actions, 
-  .side, 
-  .btn-group,
-  .paste-container, 
-  .btn-conciliacao, 
-  .link-container, 
-  .footer, 
-  .panel h2 i, 
-  .wrap { 
-    display: none !important;
-  }
-
   body {
     background: white !important;
     color: black !important;
     padding: 0 !important;
+    font-size: 10pt;
   }
 
-  .wrap {
-    display: block !important;
-    max-width: none !important;
-    margin: 0 !important;
+  .wrap, .panel, .card {
     box-shadow: none !important;
+    border: 1px solid #ccc !important;
+    background: white !important;
+    page-break-inside: avoid;
+  }
+  
+  .wrap {
+    max-width: 100% !important;
+    margin: 0 !important;
     border: none !important;
-    overflow: visible !important;
   }
 
   main {
@@ -763,14 +723,10 @@ tfoot td {
     padding: 0 !important;
     display: block !important;
   }
-
+  
   .panel {
-    background: white !important;
-    border: 1px solid #ccc !important;
-    box-shadow: none !important;
     padding: 15px !important;
     margin-bottom: 15px !important;
-    page-break-inside: avoid; 
   }
 
   .panel h2 {
@@ -780,29 +736,38 @@ tfoot td {
     margin-bottom: 10px !important;
     font-size: 1.2rem !important;
   }
+  
+  /* Esconde elementos desnecessários na impressão */
+  .app-header, .side, .btn-group, .paste-container, .link-container, .footer, .panel h2 i, .no-print, .header-actions, .btn-conciliacao { 
+    display: none !important;
+  }
 
+  /* Transforma inputs em texto simples (o JS faz a mágica de preencher) */
   input[type="text"],
   input[type="date"],
-  input[type="number"],
-  textarea {
+  input[type="number"] {
     border: none !important;
     background: transparent !important;
     color: black !important;
     padding: 0 !important;
-    font-size: 1rem !important;
+    font-size: 1em !important;
     height: auto !important;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+  }
+  
+  /* Garante que o conteúdo da tabela seja impresso corretamente */
+  table {
+    page-break-inside: auto;
   }
 
-  table input {
-    display: none !important;
+  tr {
+    page-break-inside: avoid;
+    page-break-after: auto;
   }
-
-  table th:last-child,
-  table td:last-child {
-    display: none !important;
-  }
-
-  table td:nth-child(3) {
+  
+  table td:nth-child(3) { /* Coluna de valor */
     text-align: right !important;
     font-weight: bold !important;
   }
@@ -829,14 +794,5 @@ tfoot td {
     margin-top: 20px !important;
     white-space: pre-wrap;
     font-family: monospace;
-  }
-
-  .grid-2col {
-    display: flex !important;
-    gap: 20px !important;
-  }
-
-  .grid-2col > div {
-    flex: 1;
   }
 }
