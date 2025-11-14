@@ -307,39 +307,27 @@ function gerarConciliacao() {
   const totSaidas = calcularTotal(listas.saida.data);
 
   const saldoCalculado = inicial + totRenov + totNovos + totEntradas - totSaidas;
-
   let conciliacaoText = '';
-  conciliacaoText += `CONCILIAÇÃO ${estado.toUpperCase()} / DATA ${new Date().toLocaleDateString('pt-BR')}\n\n`;
-  conciliacaoText += `Período: ${formatarData(dataSaldoInicial)} até ${formatarData(dataSaldoFinal)}\n\n`;
-  conciliacaoText += '='.repeat(60) + '\n\n';
+  const dataAtual = new Date().toLocaleDateString('pt-BR');
+  const separador = '='.repeat(60);
 
-  conciliacaoText += 'RENOVAÇÕES:\n' + formatarListaItens(listas.renovacao.data) + '\n';
-  conciliacaoText += 'NOVOS CLIENTES:\n' + formatarListaItens(listas.novo.data) + '\n';
-  conciliacaoText += 'SAÍDAS DIVERSAS:\n' + formatarListaItens(listas.saida.data) + '\n';
-  conciliacaoText += 'ENTRADAS DIVERSAS:\n' + formatarListaItens(listas.entrada.data) + '\n';
+  // 1. Cabeçalho
+  conciliacaoText += `CONCILIAÇÃO ESPARTANO ${estado.toUpperCase()} DATA ${dataAtual}\n\n`;
 
-  conciliacaoText += '='.repeat(60) + '\n\n';
-  conciliacaoText += `SALDO INICIAL: ${formatarMoeda(inicial)}\n\n`;
+  // 2. Listas Detalhadas
+  conciliacaoText += 'RENOVAÇÕES:\n\n' + formatarListaItens(listas.renovacao.data) + '\n';
+  conciliacaoText += 'NOVOS CLIENTES:\n\n' + formatarListaItens(listas.novo.data) + '\n';
+  conciliacaoText += 'SAÍDAS DIVERSAS:\n\n' + formatarListaItens(listas.saida.data) + '\n';
+  conciliacaoText += 'ENTRADAS DIVERSAS:\n\n' + formatarListaItens(listas.entrada.data) + '\n';
 
+  // 3. Resumo Final
+  conciliacaoText += `${separador}\n\n`;
+  conciliacaoText += `SALDO INICIAL: ${formatarMoeda(inicial)}\n`;
   conciliacaoText += `TOTAL RENOVAÇÕES: ${formatarMoeda(totRenov)}\n`;
   conciliacaoText += `TOTAL NOVOS CLIENTES: ${formatarMoeda(totNovos)}\n`;
   conciliacaoText += `TOTAL ENTRADAS DIVERSAS: ${formatarMoeda(totEntradas)}\n`;
-  conciliacaoText += `TOTAL SAÍDAS DIVERSAS: ${formatarMoeda(totSaidas)}\n\n`;
-
-  conciliacaoText += '='.repeat(60) + '\n';
-  conciliacaoText += '--- RESUMO DA CONCILIAÇÃO ---\n';
-  conciliacaoText += '='.repeat(60) + '\n\n';
-  conciliacaoText += `Saldo Inicial: ${formatarMoeda(inicial)}\n`;
-  conciliacaoText += `+ Renovações: ${formatarMoeda(totRenov)}\n`;
-  conciliacaoText += `+ Novos Clientes: ${formatarMoeda(totNovos)}\n`;
-  conciliacaoText += `+ Entradas Diversas: ${formatarMoeda(totEntradas)}\n`;
-  conciliacaoText += `- Saídas Diversas: ${formatarMoeda(totSaidas)}\n`;
-  conciliacaoText += `-`.repeat(60) + '\n';
-  conciliacaoText += `= Saldo Calculado: ${formatarMoeda(saldoCalculado)}\n`;
-  conciliacaoText += `Saldo em Conta: ${formatarMoeda(final)}\n`;
-  conciliacaoText += `DIFERENÇA: ${formatarMoeda(final - saldoCalculado)}\n\n`;
-  conciliacaoText += `STATUS: ${Math.abs(final - saldoCalculado) < 0.01 ? '✓ CONCILIADO' : '✗ NÃO CONCILIADO'}\n`;
-
+  conciliacaoText += `TOTAL SAÍDAS DIVERSAS: ${formatarMoeda(totSaidas)}\n`;
+  conciliacaoText += `SALDO FINAL: ${formatarMoeda(final)}\n`;
   const outputDiv = document.getElementById('conciliacaoOutput');
   outputDiv.textContent = conciliacaoText.trim();
   outputDiv.style.display = 'block';
@@ -685,3 +673,63 @@ function formatarValorParaImpressao(valor) {
   
   return formatarMoeda(valor);
 }
+
+/**
+ * Salva a conciliação como PDF com nome personalizado.
+ * O nome do arquivo é definido pelo título da página (document.title)
+ * antes de chamar window.print().
+ */
+function salvarNoBanco() {
+  const estado = document.getElementById("estadoNome").value.trim().toUpperCase();
+  const data = new Date().toLocaleDateString("pt-BR").replace(/\//g, "-");
+  
+  if (!estado) {
+    alert("Por favor, preencha o nome do Estado/Local para salvar o PDF.");
+    document.getElementById("estadoNome").focus();
+    return;
+  }
+
+  // 1. Gera o texto de conciliação para garantir que o resumo esteja atualizado
+  gerarConciliacao();
+
+  // 2. Define o título da página, que será o nome do arquivo PDF
+  const tituloOriginal = document.title;
+  document.title = `CONCILIACAO ${estado} ${data}`;
+
+  // 3. Chama a função de impressão (Salvar como PDF)
+  window.print();
+
+  // 4. Restaura o título original após um pequeno delay
+  setTimeout(() => {
+    document.title = tituloOriginal;
+  }, 500);
+}
+
+
+/**
+ * Alterna entre o tema escuro (padrão) e o tema claro.
+ * Salva a preferência do usuário no localStorage.
+ */
+function alternarTema() {
+  const body = document.body;
+  const themeToggle = document.getElementById("themeToggle");
+  const isLightTheme = body.classList.toggle("light-theme");
+
+  if (isLightTheme) {
+    localStorage.setItem("espartano2_theme", "light");
+    themeToggle.innerHTML = `<i class="fa-solid fa-moon"></i>`;
+    themeToggle.title = "Alternar para Tema Escuro";
+  } else {
+    localStorage.setItem("espartano2_theme", "dark");
+    themeToggle.innerHTML = `<i class="fa-solid fa-sun"></i>`;
+    themeToggle.title = "Alternar para Tema Claro";
+  }
+}
+
+// Verifica o tema salvo no localStorage ao carregar a página
+document.addEventListener("DOMContentLoaded", () => {
+  const savedTheme = localStorage.getItem("espartano2_theme");
+  if (savedTheme === "light") {
+    alternarTema();
+  }
+});
