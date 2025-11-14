@@ -15,6 +15,22 @@
   --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+.light-theme {
+  --bg: #f9fafb; /* Fundo branco muito suave */
+  --card: #ffffff; /* Fundo dos painéis branco */
+  --muted: #6b7280; /* Texto secundário */
+  --accent: #0d9488; /* Cor de destaque (mantida) */
+  --primary: #3b82f6; /* Azul mais suave */
+  --danger: #dc2626; /* Vermelho */
+  --success: #10b981; /* Verde */
+  --glass: rgba(0, 0, 0, 0.01);
+  --border: #e5e7eb; /* Borda clara */
+  --white: #1f2937; /* Texto principal escuro */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+}
+
 *,
 *::before,
 *::after {
@@ -30,7 +46,7 @@ body {
 
 body {
   font-family: 'Segoe UI', Roboto, system-ui, -apple-system, 'Helvetica Neue', Arial, sans-serif;
-  background: linear-gradient(180deg, var(--bg), #071023);
+  background: var(--bg); /* Cor sólida para um visual flat */
   color: var(--white);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -41,7 +57,7 @@ body {
 .wrap {
   max-width: 1200px;
   margin: 12px auto;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.01));
+  background: var(--card); /* Cor sólida do card para o wrap */
   border-radius: 12px;
   box-shadow: var(--shadow-lg);
   border: 1px solid var(--border);
@@ -53,8 +69,8 @@ body {
   align-items: center;
   justify-content: space-between;
   padding: 18px 22px;
-  background: linear-gradient(90deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.01));
-  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+  background: var(--card); /* Cor sólida do card */
+  border-bottom: 1px solid var(--border);
   gap: 16px;
   flex-wrap: wrap;
 }
@@ -138,7 +154,7 @@ main {
 }
 
 .panel {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.015), rgba(255, 255, 255, 0.01));
+  background: var(--bg); /* Cor sólida do fundo */
   border-radius: 10px;
   padding: 18px;
   border: 1px solid var(--border);
@@ -401,10 +417,13 @@ tfoot td {
   display: flex;
   flex-direction: column;
   gap: 12px;
+  position: sticky; /* Torna a coluna lateral "pegajosa" */
+  top: 22px; /* Distância do topo da tela (ajustar conforme o padding do main) */
+  height: fit-content; /* Impede que o elemento se estique além do necessário */
 }
 
 .card {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.015), rgba(255, 255, 255, 0.01));
+  background: var(--card); /* Cor sólida do card */
   border-radius: 10px;
   padding: 14px;
   border: 1px solid var(--border);
@@ -489,8 +508,8 @@ tfoot td {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-top: 1px solid rgba(255, 255, 255, 0.02);
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.01), rgba(0, 0, 0, 0.02));
+  border-top: 1px solid var(--border);
+  background: var(--card); /* Cor sólida do card */
   flex-wrap: wrap;
   gap: 12px;
 }
