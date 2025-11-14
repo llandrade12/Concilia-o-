@@ -25,6 +25,9 @@
       </div>
 
       <div class="header-actions">
+        <button title="Alternar Tema" onclick="alternarTema()" id="themeToggle">
+          <i class="fa-solid fa-sun"></i>
+        </button>
         <button title="Entrada de Dados Detalhada" onclick="window.location.href='data_entry.html'">
           <i class="fa-solid fa-table"></i> Dados Detalhados
         </button>
@@ -416,6 +419,12 @@
           <div style="margin-top:12px; color:var(--muted); font-size:0.85rem;">
             <i class="fa-solid fa-circle-check"></i> <span id="status">Sistema Pronto</span>
           </div>
+          
+          <div style="margin-top: 15px;">
+            <button class="btn btn-conciliacao" onclick="salvarNoBanco()" style="width: 100%; padding: 8px 12px; font-size: 0.9rem;">
+              <i class="fa-solid fa-cloud-arrow-up"></i> SALVAR NO BANCO (PDF)
+            </button>
+          </div>
         </div>
       </aside>
     </main>
@@ -432,8 +441,9 @@
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <!-- Biblioteca de Máscaras -->
+  <script src="https://unpkg.com/vanilla-masker@1.1.1/build/vanilla-masker.min.js"></script>
   
   <script src="script.js"></script>
 </body>
 </html>
-
