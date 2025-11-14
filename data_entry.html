@@ -810,7 +810,19 @@
 
       inputsNovo.forEach(id => {
         const el = document.getElementById(id);
-        if (el) el.addEventListener('keypress', e => e.key === 'Enter' && adicionarClienteNovo());
+        if (el) el.addEventListener('keypress', e => e.key === 'Enter' && adicionarNovo());
+      });
+
+      // Aplica as máscaras nos campos de CPF e Telefone
+      const cpfInputs = document.querySelectorAll('input[data-col="cpf"]');
+      const telefoneInputs = document.querySelectorAll('input[data-col="telefone"]');
+
+      cpfInputs.forEach(input => {
+        VMasker(input).maskPattern('999.999.999-99');
+      });
+
+      telefoneInputs.forEach(input => {
+        VMasker(input).maskPattern('(99) 99999-9999');
       });
     });
   </script>
