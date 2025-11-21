@@ -123,7 +123,7 @@
 
         
         <div class="panel sub-panel">
-          <h2><i class="fa-solid fa-user-plus"></i> Novos Clientes</h2>
+          <h2><i class="fa-solid fa-user-plus"></i> *Novos Clientes*</h2>
           <table id="tabelaNovos">
             <thead>
               <tr>
@@ -408,6 +408,35 @@
         
         <div class="card">
           <h3><i class="fa-solid fa-info-circle"></i> Sistema</h3>
+
+          <!-- NOVA SEÇÃO: GERAR TABELA DA DIÁRIA -->
+          <div class="card" style="margin-bottom: 12px;">
+            <h3><i class="fa-solid fa-calendar-days"></i> Gerar Tabela da Diaria</h3>
+            
+            <div class="grid-2col" style="margin-bottom: 12px;">
+              <div class="form-group">
+                <label for="dataInicial_diaria">Data de Início</label>
+                <input type="date" id="dataInicial_diaria">
+              </div>
+              <div class="form-group">
+                <label for="valorDiaria">Valor Diária (R$)</label>
+                <input type="text" id="valorDiaria" placeholder="Ex: 150,00">
+              </div>
+            </div>
+
+            <button class="btn btn-add" onclick="gerarTabelaDiaria()" style="width: 100%; margin-bottom: 12px;">
+              <i class="fa-solid fa-table"></i> Gerar Tabela
+            </button>
+
+            <div id="resultadoDiaria" class="resultado-diaria">
+              <!-- Tabela de diárias será inserida aqui -->
+            </div>
+
+            <button class="btn btn-copy" id="btnCopiarDiaria" onclick="copiarTabelaDiaria()" style="margin-top: 12px; width: 100%;">
+              <i class="fa-solid fa-copy"></i> Copiar Tabela
+            </button>
+          </div>
+          <!-- FIM NOVA SEÇÃO -->
           <div class="resumo-item">
             <span>Data:</span>
             <strong id="dataAtual">--/--/----</strong>
@@ -444,6 +473,7 @@
   <!-- Biblioteca de Máscaras -->
   <script src="https://unpkg.com/vanilla-masker@1.1.1/build/vanilla-masker.min.js"></script>
   
+  <script src="gerar_diaria.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
