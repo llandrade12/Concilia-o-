@@ -1,4 +1,3 @@
-
 const listas = {
   renovacao: {
     data: [],
@@ -53,7 +52,7 @@ function calcularTotal(itens) {
 
 function formatarListaItens(itens) {
   if (!itens || itens.length === 0) return '(Nenhum item)\n\n';
-  return itens.map((item, index) => 
+  return itens.map((item, index) =>
     `${index + 1}. ${item.nome}\n${formatarMoeda(item.valor)}\n`
   ).join('\n') + '\n';
 }
@@ -89,13 +88,13 @@ function adicionarSaida() {
 
 function atualizarItem(tipo, i, campo, valor) {
   if (!listas[tipo] || !listas[tipo].data[i]) return;
-  
+
   if (campo === 'valor') {
     listas[tipo].data[i][campo] = parseFloat(String(valor).replace(',', '.')) || 0;
   } else {
     listas[tipo].data[i][campo] = valor;
   }
-  
+
   atualizarTabela(tipo);
   atualizarResumo();
 }
@@ -103,7 +102,7 @@ function atualizarItem(tipo, i, campo, valor) {
 
 function removerItem(tipo, i) {
   if (!listas[tipo]) return;
-  
+
   if (confirm('Deseja realmente remover este item?')) {
     listas[tipo].data.splice(i, 1);
     atualizarTabela(tipo);
@@ -142,28 +141,28 @@ function atualizarTabela(tipo, focarNoUltimo = false) {
         <tr>
           <td style="width:40px">${i + 1}</td>
           <td>
-            <input 
-              type="text" 
-              value="${nomeEsc}" 
-              onchange="atualizarItem('${tipo}', ${i}, 'nome', this.value)" 
+            <input
+              type="text"
+              value="${nomeEsc}"
+              onchange="atualizarItem('${tipo}', ${i}, 'nome', this.value)"
               style="background:transparent; border:none; color:var(--white); width:100%;"
               placeholder="Nome do item"
             >
           </td>
           <td style="width:170px">
-            <input 
-              class="valor-input" 
-              type="number" 
-              step="0.01" 
-              value="${valorNum.toFixed(2)}" 
-              onchange="atualizarItem('${tipo}', ${i}, 'valor', this.value)" 
+            <input
+              class="valor-input"
+              type="number"
+              step="0.01"
+              value="${valorNum.toFixed(2)}"
+              onchange="atualizarItem('${tipo}', ${i}, 'valor', this.value)"
               style="background:transparent; border:none; color:var(--white); width:100%;"
             >
           </td>
           <td style="width:70px">
-            <button 
-              class="btn" 
-              style="background:#b91c1c; padding:6px 8px;" 
+            <button
+              class="btn"
+              style="background:#b91c1c; padding:6px 8px;"
               onclick="removerItem('${tipo}', ${i})"
               title="Remover item"
             >
@@ -198,19 +197,19 @@ function carregarDadosTransferidos() {
   if (dadosTransferidos) {
     try {
       const dados = JSON.parse(dadosTransferidos);
-      
+
       if (dados.renovacoes && dados.renovacoes.length > 0) {
         listas.renovacao.data = dados.renovacoes;
         atualizarTabela('renovacao');
       }
-      
+
       if (dados.novos && dados.novos.length > 0) {
         listas.novo.data = dados.novos;
         atualizarTabela('novo');
       }
-      
+
       localStorage.removeItem('espartano2_transferencia');
-      
+
       return true;
     } catch (e) {
       console.error("Erro ao carregar dados transferidos:", e);
@@ -264,7 +263,7 @@ function atualizarGrafico(inicial, renovacoes, novos, entradas, saidas, final) {
   document.getElementById('grafSaldoFinal').textContent = formatarMoeda(final);
 
   const valores = [inicial, renovacoes, novos, entradas, saidas, final].filter(v => v > 0);
-  const maxValor = Math.max(...valores, 1); 
+  const maxValor = Math.max(...valores, 1);
 
   const calcularPorcentagem = (valor) => {
     if (valor <= 0) return 0;
@@ -308,11 +307,10 @@ function gerarConciliacao() {
 
   const saldoCalculado = inicial + totRenov + totNovos + totEntradas - totSaidas;
   let conciliacaoText = '';
-  const dataAtual = new Date().toLocaleDateString('pt-BR');
   const separador = '='.repeat(60);
 
-  // 1. Cabeçalho
-  conciliacaoText += `CONCILIAÇÃO ESPARTANO ${estado.toUpperCase()} DATA ${dataAtual}\n\n`;
+  // 1. Cabeçalho (CORRIGIDO)
+  conciliacaoText += `CONCILIAÇÃO ESPARTANO ${estado.toUpperCase()} DATA ${formatarData(dataSaldoInicial)}\n\n`;
 
   // 2. Listas Detalhadas
   conciliacaoText += 'RENOVAÇÕES:\n\n' + formatarListaItens(listas.renovacao.data) + '\n';
@@ -341,10 +339,10 @@ function gerarConciliacao() {
 function togglePasteArea(tipo) {
   const area = document.getElementById(`pasteArea-${tipo}`);
   if (!area) return;
-  
+
   const isHidden = area.style.display === 'none' || area.style.display === '';
   area.style.display = isHidden ? 'block' : 'none';
-  
+
   if (isHidden) {
     const ta = document.getElementById(`pasteText-${tipo}`);
     if (ta) ta.focus();
@@ -354,7 +352,7 @@ function togglePasteArea(tipo) {
 
 function handlePaste(event, tipo) {
   event.preventDefault();
-  
+
   const pastedText = (event.clipboardData || window.clipboardData).getData('text');
   if (!pastedText || !pastedText.trim()) {
     alert("Nenhum dado foi colado.");
@@ -366,10 +364,10 @@ function handlePaste(event, tipo) {
 
   linhas.forEach(linha => {
     if (!linha.trim()) return;
-    
+
     const colunas = linha.split('\t');
     const nome = colunas[0] ? colunas[0].trim() : 'Item sem nome';
-    
+
     let valor = 0;
     if (colunas[1]) {
       const valorStr = colunas[1].trim()
@@ -378,7 +376,7 @@ function handlePaste(event, tipo) {
         .replace(/,/g, '.');
       valor = parseFloat(valorStr) || 0;
     }
-    
+
     listas[tipo].data.push({ nome, valor });
     itensAdicionados++;
   });
@@ -386,10 +384,10 @@ function handlePaste(event, tipo) {
   const ta = document.getElementById(`pasteText-${tipo}`);
   if (ta) ta.value = '';
   togglePasteArea(tipo);
-  
+
   atualizarTabela(tipo);
   atualizarResumo();
-  
+
   alert(`${itensAdicionados} ${itensAdicionados === 1 ? 'item foi adicionado' : 'itens foram adicionados'} com sucesso!`);
 }
 
@@ -403,7 +401,7 @@ function exportarExcel() {
   const wb = XLSX.utils.book_new();
   const nomeEstadoRaw = document.getElementById('estadoNome').value.trim();
   const nomeEstado = (nomeEstadoRaw.replace(/\s+/g, '_') || 'Conciliacao');
-  
+
   const inicial = parseFloat(String(document.getElementById('saldoInicial').value).replace(',', '.')) || 0;
   const final = parseFloat(String(document.getElementById('saldoFinal').value).replace(',', '.')) || 0;
   const dataIni = document.getElementById('dataSaldoInicial').value;
@@ -436,25 +434,25 @@ function exportarExcel() {
   };
 
   add(
-    [['#', 'Nome', 'Valor'], ...listas.renovacao.data.map((r, i) => [i + 1, r.nome, r.valor]), ['TOTAL', '', totRenov]], 
+    [['#', 'Nome', 'Valor'], ...listas.renovacao.data.map((r, i) => [i + 1, r.nome, r.valor]), ['TOTAL', '', totRenov]],
     'Renovações'
   );
   add(
-    [['#', 'Nome', 'Valor'], ...listas.novo.data.map((r, i) => [i + 1, r.nome, r.valor]), ['TOTAL', '', totNovos]], 
+    [['#', 'Nome', 'Valor'], ...listas.novo.data.map((r, i) => [i + 1, r.nome, r.valor]), ['TOTAL', '', totNovos]],
     'Novos'
   );
   add(
-    [['#', 'Descrição', 'Valor'], ...listas.entrada.data.map((r, i) => [i + 1, r.nome, r.valor]), ['TOTAL', '', totEntradas]], 
+    [['#', 'Descrição', 'Valor'], ...listas.entrada.data.map((r, i) => [i + 1, r.nome, r.valor]), ['TOTAL', '', totEntradas]],
     'Entradas'
   );
   add(
-    [['#', 'Descrição', 'Valor'], ...listas.saida.data.map((r, i) => [i + 1, r.nome, r.valor]), ['TOTAL', '', totSaidas]], 
+    [['#', 'Descrição', 'Valor'], ...listas.saida.data.map((r, i) => [i + 1, r.nome, r.valor]), ['TOTAL', '', totSaidas]],
     'Saídas'
   );
 
   const fileName = `${nomeEstado}_${new Date().toLocaleDateString('pt-BR').replace(/\//g, '-')}.xlsx`;
   XLSX.writeFile(wb, fileName);
-  
+
   document.getElementById('status').textContent = `Excel exportado: ${fileName}`;
 }
 
@@ -479,18 +477,18 @@ function gerarLink(event) {
   const data = obterDadosAtuais();
   const url = new URL(window.location.href.split('?')[0]);
   url.searchParams.set('data', encodeURIComponent(JSON.stringify(data)));
-  
+
   document.getElementById('linkGerado').textContent = url.toString();
   document.getElementById('linkContainer').style.display = 'block';
-  
+
   if (event && event.target) {
     const textoOriginal = event.target.innerHTML;
     event.target.innerHTML = '<i class="fa-solid fa-check"></i> Link Gerado!';
-    setTimeout(() => { 
+    setTimeout(() => {
       event.target.innerHTML = textoOriginal;
     }, 2000);
   }
-  
+
   document.getElementById('status').textContent = 'Link gerado com sucesso!';
 }
 
@@ -498,11 +496,11 @@ function gerarLink(event) {
 function copiarLink(event) {
   const link = document.getElementById('linkGerado').textContent;
   const botao = event.target;
-  
+
   navigator.clipboard.writeText(link).then(() => {
     const textoOriginal = botao.innerHTML;
     botao.innerHTML = '<i class="fa-solid fa-check"></i> Copiado!';
-    setTimeout(() => { 
+    setTimeout(() => {
       botao.innerHTML = textoOriginal;
     }, 2000);
   }).catch(err => {
@@ -515,14 +513,14 @@ function copiarLink(event) {
 function salvarLocal(event) {
   const data = obterDadosAtuais();
   localStorage.setItem('conciliacao_espartano2', JSON.stringify(data));
-  
+
   const botao = event.target;
   const textoOriginal = botao.innerHTML;
   botao.innerHTML = '<i class="fa-solid fa-check"></i> Salvo!';
-  setTimeout(() => { 
+  setTimeout(() => {
     botao.innerHTML = textoOriginal;
   }, 2000);
-  
+
   document.getElementById('status').textContent = 'Dados salvos localmente!';
 }
 
@@ -532,7 +530,7 @@ function salvarLocal(event) {
  */
 function carregarDados(data) {
   if (!data) return;
-  
+
   try {
     document.getElementById('estadoNome').value = data.estadoNome || '';
     document.getElementById('dataSaldoInicial').value = data.dataSaldoInicial || '';
@@ -560,23 +558,23 @@ function zerarTudo() {
   if (!confirm("⚠️ ATENÇÃO: Isso irá ZERAR TODOS OS CAMPOS e dados inseridos.\n\nDeseja realmente continuar?")) {
     return;
   }
-  
+
   document.getElementById('estadoNome').value = '';
   document.getElementById('dataSaldoInicial').value = '';
   document.getElementById('saldoInicial').value = '0.00';
   document.getElementById('dataSaldoFinal').value = '';
   document.getElementById('saldoFinal').value = '0.00';
-  
+
   for (const tipo in listas) {
     listas[tipo].data = [];
     atualizarTabela(tipo);
   }
-  
+
   atualizarResumo();
   document.getElementById('conciliacaoOutput').style.display = 'none';
   document.getElementById('linkContainer').style.display = 'none';
   document.getElementById('status').textContent = 'Sistema zerado e pronto para uso';
-  
+
   localStorage.removeItem('conciliacao_espartano2');
 }
 
@@ -584,7 +582,7 @@ function zerarTudo() {
 window.onload = () => {
   document.getElementById('dataAtual').textContent = new Date().toLocaleDateString('pt-BR');
   document.getElementById('horaAtual').textContent = new Date().toLocaleTimeString('pt-BR');
-  
+
   setInterval(() => {
     document.getElementById('horaAtual').textContent = new Date().toLocaleTimeString('pt-BR');
   }, 1000);
@@ -629,87 +627,74 @@ window.onload = () => {
 
 
 function imprimirConciliacao() {
-  
+
   atualizarResumo();
 
-  
+
   const resumoEmpty = document.getElementById('resumoEmpty');
   if (resumoEmpty) {
     resumoEmpty.style.display = 'none';
   }
 
-  
+
   const sidePanel = document.querySelector('.side');
   if (sidePanel) {
     sidePanel.style.display = 'none';
   }
 
-  
+
   const printButton = document.querySelector('button[onclick="imprimirConciliacao()"]');
   if (printButton) {
     printButton.style.display = 'none';
   }
 
- 
+
   window.print();
 
-  
+
   setTimeout(() => {
     if (sidePanel) {
-      sidePanel.style.display = 'flex'; // Ou o display original
+      sidePanel.style.display = 'flex'; 
     }
     if (printButton) {
-      printButton.style.display = 'inline-flex'; // Ou o display original
+      printButton.style.display = 'inline-flex'; 
     }
-    
+
     if (resumoEmpty && document.getElementById('resumo').style.display === 'none') {
       resumoEmpty.style.display = 'block';
     }
-  }, 100); // Pequeno atraso para garantir que a impressão seja iniciada
+  }, 100); 
 }
 
 
 function formatarValorParaImpressao(valor) {
-  
+
   return formatarMoeda(valor);
 }
 
-/**
- * Salva a conciliação como PDF com nome personalizado.
- * O nome do arquivo é definido pelo título da página (document.title)
- * antes de chamar window.print().
- */
 function salvarNoBanco() {
   const estado = document.getElementById("estadoNome").value.trim().toUpperCase();
   const data = new Date().toLocaleDateString("pt-BR").replace(/\//g, "-");
-  
+
   if (!estado) {
     alert("Por favor, preencha o nome do Estado/Local para salvar o PDF.");
     document.getElementById("estadoNome").focus();
     return;
   }
 
-  // 1. Gera o texto de conciliação para garantir que o resumo esteja atualizado
   gerarConciliacao();
 
-  // 2. Define o título da página, que será o nome do arquivo PDF
   const tituloOriginal = document.title;
   document.title = `CONCILIACAO ${estado} ${data}`;
 
-  // 3. Chama a função de impressão (Salvar como PDF)
   window.print();
 
-  // 4. Restaura o título original após um pequeno delay
   setTimeout(() => {
     document.title = tituloOriginal;
   }, 500);
 }
 
 
-/**
- * Alterna entre o tema escuro (padrão) e o tema claro.
- * Salva a preferência do usuário no localStorage.
- */
 function alternarTema() {
   const body = document.body;
   const themeToggle = document.getElementById("themeToggle");
@@ -726,10 +711,10 @@ function alternarTema() {
   }
 }
 
-// Verifica o tema salvo no localStorage ao carregar a página
 document.addEventListener("DOMContentLoaded", () => {
   const savedTheme = localStorage.getItem("espartano2_theme");
   if (savedTheme === "light") {
     alternarTema();
   }
 });
+
